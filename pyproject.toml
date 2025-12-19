@@ -1,0 +1,45 @@
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+
+
+[project]
+name = "neurokraken"   # package name
+version = "0.0.1"
+description = "Neurokraken!"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.10"
+
+# List of core dependencies - install or update with `pip install .`
+dependencies = [
+    'py5',
+    'opencv-python>=3.12',
+    'pyserial',
+    'keyboard',
+    'psutil',
+    'rich',
+    'py5gui @ git+https://github.com/alexanderwallerus/py5-gui@main',
+    'pyside6',
+    'matplotlib',
+    'sounddevice',
+    'soundfile',
+    'imageio_ffmpeg'
+]
+
+# List of full dependencies - install with `pip install .[full]
+[project.optional-dependencies]
+full = [
+    'imageio[ffmpeg]',
+    'waitress',
+    'flask',
+    'vizdoom'
+]
+
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["neurokraken", "neurokraken.*"] # everything in the neurokraken folder only
+exclude = []

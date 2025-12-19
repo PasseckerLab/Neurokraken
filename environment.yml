@@ -1,0 +1,18 @@
+# conda env create -f environment.yml to create the environment
+# Requirement: git for the py5gui
+name: neurokraken 
+
+dependencies:
+- python>=3.12
+- anaconda
+- pip
+- pip:    
+  - py5
+  - opencv-python
+  - pyserial
+  - keyboard
+  - psutil
+  - rich
+  - py5gui @ git+https://github.com/alexanderwallerus/py5-gui@main
+  - pyside6
+  - matplotlib
