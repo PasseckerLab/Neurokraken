@@ -72,7 +72,7 @@ class Corridor(State):
         # show the world
         sketch.shape(self.world)
          
-    def on_sketch_setup(self, sketch):
+    def pre_task(self, sketch):
         # assets needs to be loaded before other functions that might need them
         filepath = str((Path(__file__).parent / 'assets' / 'corridor.obj').resolve())
         self.world = sketch.load_shape(filepath)

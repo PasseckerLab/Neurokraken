@@ -52,8 +52,6 @@ class Neurokraken:
         for frame_info in stack:
             if frame_info.filename.endswith('config2teensy.py'):
                 self.skip_execution = True
-        if self.skip_execution:
-            return
 
         self.serial_in = serial_in
         self.serial_out = serial_out
@@ -61,10 +59,12 @@ class Neurokraken:
         self.display_config = display
         self.log_dir = log_dir
         self.max_framerate = max_framerate
-        self.mode = mode
         self.task_path = task_path
         self.import_pre_run = import_pre_run
         self.log_performance = log_performance
+        if self.skip_execution:
+            self.log_dir = None
+            mode = 'keyboard'
 
         #------------------------- LOGGING -------------------------
 
@@ -216,10 +216,13 @@ class Neurokraken:
 
         from . import controls
 
-        controls.get = controls.Get(serial_in=self.serial_in, serial_out=self.serial_out, config=config,
-                                    state_machine=self.machine, log=self.log,
-                                    cameras=kraken_cam.cameras, camera=kraken_cam.get_camera,
-                                    threads_info=self.threads_info, log_dir=self.log_dir, mode=mode)
+        get = controls.Get(serial_in=self.serial_in, serial_out=self.serial_out, config=config,
+                           state_machine=self.machine, log=self.log,
+                           cameras=kraken_cam.cameras, camera=kraken_cam.get_camera,
+                           threads_info=self.threads_info, log_dir=self.log_dir, mode=mode)
+        
+        # replace the content of get
+        controls.get.__dict__.update(get.__dict__)
 
     def load_task(self, task:dict[str, State] | dict[str, dict[str, State]],
                   experiment:Container={}, start_block:str|None=None, permanent_states:list[Callable]=(),
@@ -227,9 +230,6 @@ class Neurokraken:
                   run_post_trial:Callable=lambda : None,
                   run_at_visual_start:Callable[[Sketch], None]=lambda sketch : None,
                   main_as_sketch:bool=True):
-        
-        if self.skip_execution:
-            return
         
         from . import controls
 
@@ -285,7 +285,7 @@ class Neurokraken:
                 # self.world = self.load_shape(r'C:\Users\q131aw\Desktop\temp\test3d\otherFolder\world.obj')
                 for block in self.blocks.values():
                     for state in block.values():
-                        state.on_sketch_setup(self)
+                        state.pre_task(self)
 
             def draw(self):
                 # setup and the included load_shape seems to behave slightly asynchronous

@@ -66,7 +66,7 @@ class State:
             for func in self.run_at_end:
                 func(*[self, finished][:func.__code__.co_argcount])
     
-    def on_sketch_setup(self, sketch)->None:
+    def pre_task(self, sketch)->None:
         """This function will be run within the py5 sketch setup. It allows you for for example
         load textures that the State is going to use here at program start using the function's
         sketch argument to access py5. It can also be used for other py5 functions you only want
@@ -74,7 +74,7 @@ class State:
         
         Example usage in your class MyState(State):
         
-        def on_sketch_setup(self, sketch):
+        def pre_task(self, sketch):
             self.my_texture_A = sketch.load_image('tasks/mytask/mytextureA.png')
             self.my_texture_B = sketch.load_image('tasks/mytask/mytextureB.png')
         """

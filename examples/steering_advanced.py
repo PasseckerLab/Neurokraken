@@ -86,7 +86,7 @@ class Steer(State):
         sketch.image_mode(sketch.CENTER)
         sketch.image(self.texture, self.position, 300, 100, 300)
 
-    def on_sketch_setup(self, sketch):
+    def pre_task(self, sketch):
         # the texture should be loaded before other functions might need it
         self.texture = str(Path(__file__).parent / 'assets' / 'steering_texture.png')
         self.texture = sketch.load_image(str(self.texture))

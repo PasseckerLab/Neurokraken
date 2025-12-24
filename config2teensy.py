@@ -12,7 +12,7 @@ if path is None:
     This can be a config.py file used in task folder mode or a script that by its end contains a serial_in and serial_outdictionary i.e. from imported mode.
     The entries of serial_in/serial_out have to contain entries for "arduino_class": and for "arduino_args": so that correct arduino side classes can be assembled.
     You can drag and drop a python file or folder (with a config.py inside) into the console and enter have this script parse its serial_in/serial_out and
-    create the arduino side configuration. Note that all parts of the file not wrapped in if __name__ == '__main__' will be executed."""
+    create the arduino side configuration."""
     note = textwrap.dedent(note[1:])
     print(note)
     path = input('> ')
