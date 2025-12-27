@@ -16,14 +16,14 @@ from typing import Callable, Container
 from core.state_machine import State
 
 class Neurokraken:
-    def __init__(self, serial_in:dict, serial_out:dict, log_dir:str|None='./', mode='teensy',
+    def __init__(self, serial_in:dict={}, serial_out:dict={}, log_dir:str|None='./', mode='teensy',
                  display:dict=None, cameras:list=(), microphones:list=(),
-                 subject:dict={'ID': '_'}, serial_key:str='KRAKEN',
+                 subject:dict|str={'ID': '_'}, serial_key:str='KRAKEN',
                  autostart=True, max_framerate=8_000, networker_mode='archivist', agent=None,
                  config:Container={}, task_path:Path=None, import_pre_run:str=None,
                  log_performance=False):
         """Create a Neurokraken instance using the provided device configuration.
-        This class manages communication with hardware components including seri
+        This class manages communication with hardware components including serial
         interfaces, camera systems, and data logging. It handles task execution,
         real-time data streaming, and system configuration management.
 
@@ -33,19 +33,23 @@ class Neurokraken:
             log_dir (str|None, optional): Directory path for logging output. A log folder will be created at this location.
                                           Defaults to the current folder './'. None to not save a log.
             mode (str, optional): Operating mode ('teensy', 'keyboard' or 'agent') Defaults to 'teensy'
+            agent (class, optional): A class with a def act() method to run when mode='agent'
             display_config (dict, optional): A configurators.Display() to position the subject's task view among
                                              the computer's connected displays.
             cameras (list, optional): List of camera configurations using configurators.Camera()
-            subject (dict, optional): Subject identification information. Defaults to {"ID": "_"}
-            serial_key (str, optional): Serial communication key identifier
+            microphones (list, optional): List of microphone configurations using configurators.Microphone()
+            subject (dict|str, optional): Subject identification information. Defaults to {"ID": "_"}
+            serial_key (str, optional): Serial communication key identifier. Defaults to 'KRAKEN'
             autostart (bool, optional): Whether to automatically start the experiment or wait for get.start(). Defaults to True
             max_framerate (int, optional): Maximum frame rate for the main loop. Defaults to 8000
+            log_performance (bool, optional): Set to True to have the main loop log iteration and networking times. Defautls to False.
             config (Container, optional): Useful in runner mode to develop config-dependent experiments.
                                           The provided container (i.e. config.py file) will be accessible as get.config
             task_path (Path, optional): Useful in runner mode, this folder (i.e. tasks/my_task) will be copied to the 
                                         log folder as a backup of the experiment run. This path will also be searched
-                                        for a file ui.py to import and run before the experiment start.
-            import_pre_run (str, optional): Path to a .py file to import just before starting the run, i.e. to start a GUI
+                                        for a file launch.py to import and run before the experiment start.
+            import_pre_run (str, optional): Useful in runner mode. 
+                                            Path to a .py file to import just before starting the run, i.e. to start a GUI
         """
         self.skip_execution = False
         stack = inspect.stack()
@@ -72,6 +76,8 @@ class Neurokraken:
 
         # replace forbidden directory characters and trimm off milliseconds
         log_name_DT = ''.join(str(datetime.now()).replace(':', ';').replace(' ', '_').split('.')[:-1])
+        if type(subject) == str:
+            subject = {'ID': subject}
         log_name = (subject['ID']) + '_' + log_name_DT
         if subject['ID'] == '_':
             log_name = 'Neurokraken' + '_' + log_name_DT

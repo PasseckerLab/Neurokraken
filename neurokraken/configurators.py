@@ -14,7 +14,7 @@ class Display:
             organization of your displays in the Windows Display Settings.
             You can use positions in one of your additional displays or even have task visuals
             span multiple displays (when using a sufficient size).
-            Defaults to (00, 0).
+            Defaults to (0, 0).
         borderless (bool):  Whether the window should be displayed without borders.
             To run your task without a taskbar, i.e. as a fullscreen visual set borderless to True.
             Defaults to False.
@@ -34,7 +34,7 @@ class Camera:
     """
     Configuration for camera settings and video capture parameters.
 
-    Run neurokraken.tools.check_connected_recording_devices() to list connected cameras and their indices.
+    Run neurokraken.tools.list_connected_recording_devices() to list connected cameras and their indices.
     (Be aware that GenICam cameras won't be detected by this function)
 
     This configuration defines all configurable parameters for camera initialization,
@@ -110,7 +110,7 @@ class Camera:
 class Microphone:
     """
     Configuration for a connected microphone.
-    Run neurokraken.tools.check_connected_recording_devices() to list all connected devices and their indices
+    Run neurokraken.tools.list_connected_recording_devices() to list all connected devices and their indices
 
     Attributes:
         name(str): Microphone name or identifier. The .wav file and log entries will be saved under this name. Defaults to '_'.

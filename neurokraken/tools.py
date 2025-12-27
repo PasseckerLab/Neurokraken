@@ -1,6 +1,5 @@
 from core.print0 import print0
-import random
-import pathlib, sys, subprocess
+import sys, subprocess
 from pathlib import Path
 import imageio_ffmpeg
 from neurokraken import get
