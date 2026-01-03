@@ -128,7 +128,7 @@ task = {
 nk.load_task(task)
 
 from py5 import Sketch
-import py5gui as gui
+import krakengui as gui
 
 #------------------------- UI -------------------------
 

@@ -2,7 +2,7 @@
 # This typically covers UIs and parallel analysis/processing loops like cutie
 
 from py5 import Sketch
-import py5gui as gui
+import krakengui as gui
 from neurokraken.controls import get
 import random
 

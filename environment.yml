@@ -1,5 +1,5 @@
 # conda env create -f environment.yml to create the environment
-# Requirement: git for the py5gui
+# Requirement: git for the krakengui
 name: neurokraken 
 
 dependencies:
@@ -13,6 +13,6 @@ dependencies:
   - keyboard
   - psutil
   - rich
-  - py5gui @ git+https://github.com/alexanderwallerus/py5-gui@main
+  - krakengui @ git+https://github.com/alexanderwallerus/kraken-gui@main
   - pyside6
   - matplotlib

@@ -138,7 +138,7 @@ nk.load_task(task, run_post_trial=switch_side_probability_if_performant)
 
 #------------------------- ADD A SMALL UI -------------------------
 from py5 import Sketch
-import py5gui as gui
+import krakengui as gui
 
 def override_reward():
     global valve_open_t_ms

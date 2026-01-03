@@ -21,7 +21,7 @@ dependencies = [
     'keyboard',
     'psutil',
     'rich',
-    'py5gui @ git+https://github.com/alexanderwallerus/py5-gui@main',
+    'krakengui @ git+https://github.com/alexanderwallerus/kraken-gui@main',
     'pyside6',
     'matplotlib',
     'sounddevice',
