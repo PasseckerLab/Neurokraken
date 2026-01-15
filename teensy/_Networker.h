@@ -7,6 +7,23 @@ class Control{
       // overwrite this function with a void act() in your own class code
     }
 
+    int valueFromBytes(){
+      // examples: int i = valueFromBytes();
+      //           bool b = valueFromBytes();
+      if (numCtrlBytes == 1){
+        return int(ctrlBytes[0]);
+      }
+      else if (numCtrlBytes == 2){
+        // 2 bytes into a uint 0 to 65,535
+        unsigned int value = 0;
+        value = ctrlBytes[0] + 256*ctrlBytes[1]; // little endian
+        return value;
+      }
+      return 0;
+    }
+
+    // --- legacy non-overloaded functions ---
+
     bool boolFromByte(){
       return ctrlBytes[0] == 0x01 ? true : false;
     }
@@ -55,6 +72,28 @@ class Sensor{
     virtual void read(){
       // overwrite this function with a void read() in your own class code that fills up sensBytes[] with what you want to send
     }
+
+    void valueToBytes(int i){
+      // examples: int i = 10;
+      //           valueToBytes(i);
+      if (numSensBytes == 1){
+        sensBytes[0] = i & 0xFF;
+      }
+      else if (numSensBytes == 2){
+        sensBytes[0] = i & 0xFF;
+        sensBytes[1] = (i >> 8) & 0xFF;
+      }
+    }
+
+    void valueToBytes(long l){
+      // 4 sensBytes
+      sensBytes[0] = l & 0xFF;
+      sensBytes[1] = (l >> 8) & 0xFF;
+      sensBytes[2] = (l >> 16) & 0xFF;
+      sensBytes[3] = (l >> 24) & 0xFF;
+    }
+
+    // --- legacy non-overloaded functions ---
 
     void int8ToByte(byte* byteArr, int i){
       // int values 0 to 255 can be stored in a single byte

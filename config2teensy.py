@@ -1,5 +1,6 @@
 import sys
 from pathlib import Path
+from neurokraken import _SerialReady
 
 path = None
 if len(sys.argv) > 1:

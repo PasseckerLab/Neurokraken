@@ -16,9 +16,8 @@ parser.add_argument('-l', '--last', action='store_true', help ='use the last exp
 args = parser.parse_args()
 if args.last:
     # use the most recent log
-    log_dir = Path(__file__).parent.parent.parent/'logs'
-    print(log_dir)
-    # print(list(log_dir.glob('*')))
+    log_folder = 'logs' # change to 'examples' to take the most recent log in the examples folder
+    log_dir = Path(__file__).parent.parent.parent/log_folder
     logs = [f for f in log_dir.glob('*') if f.name != '.gitkeep']
     if len(logs) == 0:
         print(f'no logs found in the logs directory')
@@ -37,35 +36,47 @@ print(f'opening: {log}')
 with open(str(log)) as file:
     log = json.load(file)
 
-main_loop_t = log['t_main_loop']
-main_loop_diff = np.diff(main_loop_t)
-main_loop_mean = np.mean(main_loop_diff)
-main_loop_stddev = np.std(main_loop_diff)
-main_loop_fps = len(main_loop_t) / main_loop_t[-1] * 1000
-main_loop_max = max(main_loop_diff)
+has_main_loop = True if 't_main_loop' in log else False
+if has_main_loop:
+    print('found main loop iterations')
+    main_loop_t = log['t_main_loop']
+    main_loop_diff = np.diff(main_loop_t)
+    main_loop_mean = np.mean(main_loop_diff)
+    main_loop_stddev = np.std(main_loop_diff)
+    main_loop_fps = len(main_loop_t) / main_loop_t[-1] * 1000
+    main_loop_max = max(main_loop_diff)
 
-received_t = log['t_received']
-received_diff = np.diff(received_t)
-received_mean = np.mean(received_diff)
-received_stddev = np.std(received_diff)
-received_fps = len(received_t) / received_t[-1] * 1000
-received_max = max(received_diff)
+has_received = True if 't_received' in log.keys() else False
+if has_received:
+    print('found communication iterations')
+    received_t = log['t_received']
+    received_diff = np.diff(received_t)
+    received_mean = np.mean(received_diff)
+    received_stddev = np.std(received_diff)
+    received_fps = len(received_t) / received_t[-1] * 1000
+    received_max = max(received_diff)
 
-t_ms = log['t_ms'] # set logging to True
-t_ms = [t[1] for t in t_ms]
-t_ms_diff = np.diff(t_ms)
-t_ms_mean = np.mean(t_ms_diff)
-t_ms_stddev = np.std(t_ms_diff)
-t_ms_vps = len(t_ms) / t_ms[-1] * 1000
-t_ms_max = np.max(np.abs(t_ms_diff - t_ms_mean))
+has_t_ms = True if 't_ms' in log.keys() else False
+if has_t_ms:
+    print('found millisecond changes')
+    t_ms = log['t_ms'] # set logging to True
+    t_ms = [t[1] for t in t_ms]
+    t_ms_diff = np.diff(t_ms)
+    t_ms_mean = np.mean(t_ms_diff)
+    t_ms_stddev = np.std(t_ms_diff)
+    t_ms_vps = len(t_ms) / t_ms[-1] * 1000
+    t_ms_max = np.max(np.abs(t_ms_diff - t_ms_mean))
 
-t_us = log['t_us']
-t_us = [t[1] for t in t_us]
-t_us_diff = np.diff(t_us) - 1000 # 1ms has passed between samplings
-t_us_mean = np.mean(t_us_diff)
-t_us_stddev = np.std(t_us_diff)
-t_us_vps = len(t_us) / t_us[-1] * 1000000
-t_us_max = np.max(np.abs(t_us_diff - t_us_mean))
+has_t_us = True if 't_us' in log.keys() else False
+if has_t_us:
+    print('found microsecond precision')
+    t_us = log['t_us']
+    t_us = [t[1] for t in t_us]
+    t_us_diff = np.diff(t_us) - 1000 # 1ms has passed between samplings
+    t_us_mean = np.mean(t_us_diff)
+    t_us_stddev = np.std(t_us_diff)
+    t_us_vps = len(t_us) / t_us[-1] * 1000000
+    t_us_max = np.max(np.abs(t_us_diff - t_us_mean))
 
 import matplotlib as mpl
 from matplotlib import pyplot as plt
@@ -75,22 +86,34 @@ plt.style.use('dark_background')
 fig = plt.figure(figsize=(6, 6))
 fig.canvas.manager.window.showMaximized()
 plt.tight_layout() 
-gs = mpl.gridspec.GridSpec(4, 1, height_ratios=[1,1,1,1], width_ratios=[1], hspace=0.4) # 2 rows, 1 cols
-ax0 = plt.subplot(gs[0]) # gs[0,0]
-plt.plot(main_loop_t[:-1], main_loop_diff)
-plt.ylabel('np.diff main loop')
-plt.title(f'Main Loop: #frames: {len(main_loop_t)}, framerate: {main_loop_fps:.2f}it/s, diff mean: {main_loop_mean:.2f}ms, diff stddev: {main_loop_stddev:.2f}ms, diff max: {main_loop_max:.2f}ms')
-plt.subplot(gs[1])
-plt.title(f'Communications: #loops: {len(received_t)}, framerate: {received_fps:.2f}it/s, diff mean: {received_mean:.2f}ms, diff stddev: {received_stddev:.2f}ms, diff max: {received_max:.2f}ms')
-plt.ylabel('np.diff communications')
-plt.plot(received_t[:-1], received_diff)
-plt.subplot(gs[2])
-plt.title(f'sensor sampling (using ms sensor): #values: {len(t_ms)}, vals/s: {t_ms_vps:.2f}, diff mean: {t_ms_mean:.2f}ms, diff stddev: {t_ms_stddev:.2f}ms, diff max: {t_ms_max:.2f}ms')
-plt.ylabel('np.diff t_ms')
-plt.plot(t_ms[:-1], np.diff(t_ms))
-plt.subplot(gs[3])
-plt.ylabel('np.diff t_us -1000')
-plt.title(f'us precision (using us sensor): #values: {len(t_us)}, vals/s: {t_us_vps:.2f}, diff mean: {t_us_mean:.2f}us, diff stddev: {t_us_stddev:.2f}us, diff max: {t_us_max:.2f}us')
-plt.plot(t_us[:-1], t_us_diff)
+
+num_plots = 0
+num_plots = sum([has_main_loop, has_received, has_t_ms, has_t_us])
+
+gs = mpl.gridspec.GridSpec(num_plots, 1, height_ratios=[1]*num_plots, width_ratios=[1], hspace=0.4)
+current_plot = 0
+if has_main_loop:
+    ax = plt.subplot(gs[current_plot]) # gs[0,0]
+    plt.plot(main_loop_t[:-1], main_loop_diff)
+    plt.ylabel('np.diff main loop')
+    plt.title(f'Main Loop: #frames: {len(main_loop_t)}, framerate: {main_loop_fps:.2f}it/s, diff mean: {main_loop_mean:.2f}ms, diff stddev: {main_loop_stddev:.2f}ms, diff max: {main_loop_max:.2f}ms')
+    current_plot += 1
+if has_received:
+    plt.subplot(gs[current_plot])
+    plt.title(f'Communications: #loops: {len(received_t)}, framerate: {received_fps:.2f}it/s, diff mean: {received_mean:.2f}ms, diff stddev: {received_stddev:.2f}ms, diff max: {received_max:.2f}ms')
+    plt.ylabel('np.diff communications')
+    plt.plot(received_t[:-1], received_diff)
+    current_plot += 1
+if has_t_ms:
+    plt.subplot(gs[current_plot])
+    plt.title(f'sensor sampling (using ms sensor): #values: {len(t_ms)}, vals/s: {t_ms_vps:.2f}, diff mean: {t_ms_mean:.2f}ms, diff stddev: {t_ms_stddev:.2f}ms, diff max: {t_ms_max:.2f}ms')
+    plt.ylabel('np.diff t_ms')
+    plt.plot(t_ms[:-1], np.diff(t_ms))
+    current_plot += 1
+if has_t_us:
+    plt.subplot(gs[current_plot])
+    plt.ylabel('np.diff t_us -1000')
+    plt.title(f'us precision (using us sensor): #values: {len(t_us)}, vals/s: {t_us_vps:.2f}, diff mean: {t_us_mean:.2f}us, diff stddev: {t_us_stddev:.2f}us, diff max: {t_us_max:.2f}us')
+    plt.plot(t_us[:-1], t_us_diff)
 
 plt.show()

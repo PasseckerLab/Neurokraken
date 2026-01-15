@@ -15,6 +15,10 @@ from py5 import Sketch
 from typing import Callable, Container
 from core.state_machine import State
 
+class _SerialReady(Exception):
+    """Raised when serial dictionaries are ready for config2teensy"""
+    pass
+
 class Neurokraken:
     def __init__(self, serial_in:dict={}, serial_out:dict={}, log_dir:str|None='./', mode='teensy',
                  display:dict=None, cameras:list=(), microphones:list=(),
@@ -51,11 +55,11 @@ class Neurokraken:
             import_pre_run (str, optional): Useful in runner mode. 
                                             Path to a .py file to import just before starting the run, i.e. to start a GUI
         """
-        self.skip_execution = False
+        self.running_config2teensy = False
         stack = inspect.stack()
         for frame_info in stack:
             if frame_info.filename.endswith('config2teensy.py'):
-                self.skip_execution = True
+                self.running_config2teensy = True
 
         self.serial_in = serial_in
         self.serial_out = serial_out
@@ -66,9 +70,23 @@ class Neurokraken:
         self.task_path = task_path
         self.import_pre_run = import_pre_run
         self.log_performance = log_performance
-        if self.skip_execution:
-            self.log_dir = None
-            mode = 'keyboard'
+
+        #------------------------- CHECK CORE SERIAL ENTRIES -------------------------
+        if not 't_ms' in self.serial_in.keys():
+            self.serial_in = {'t_ms': {'value': 0, 'encoding': 'uint', 'byte_length': 4, 'logging': False},
+                              **self.serial_in}
+        
+        if not 'start_stop' in self.serial_out.keys():
+            self.serial_out = {'start_stop': {'value': 0, 'encoding': 'uint', 'byte_length': 1,
+                               'default': 0, 'reset_after_send': True},
+                               **self.serial_out}
+
+        if self.log_performance:
+            self.serial_in['t_ms']['logging'] = True
+
+        if self.running_config2teensy:
+            pass
+            # raise _SerialReady
 
         #------------------------- LOGGING -------------------------
 
@@ -107,16 +125,6 @@ class Neurokraken:
                     priority=3, color='blue', topic='configuration')
             # If python is not executed from an administrator console the priority 
             # can and will only be set to HIGH instead of REALTIME
-
-        #------------------------- CHECK CORE SERIAL ENTRIES -------------------------
-        if not 't_ms' in self.serial_in.keys():
-            self.serial_in = {'t_ms': {'value': 0, 'encoding': 'uint', 'byte_length': 4, 'logging': False},
-                              **self.serial_in}
-        
-        if not 'start_stop' in self.serial_out.keys():
-            self.serial_out = {'start_stop': {'value': 0, 'encoding': 'uint', 'byte_length': 1,
-                               'default': 0, 'reset_after_send': True},
-                               **self.serial_out}
 
         #------------------------- LOG -------------------------
 
@@ -348,7 +356,7 @@ class Neurokraken:
             keyboard.on_release(keyboard_startstop)
 
     def run(self):
-        if self.skip_execution:
+        if self.running_config2teensy:
             return
 
         print0('Starting Neurokraken. Ctrl+Alt+Q to quit', color='cyan')

@@ -272,9 +272,13 @@ class _Devices:
         This can be used to control valves, buzzers, LEDs, ... anything you can
         control with a electric logic signal. These devices can also be time-limited
         activated with the timed_on device as an alternative.
-        Application Example:
-        serial_out = {'odor_valve': direct_on_off(3)}
-        get.send_out('odor_valve', 0) # turn the signal off / shut down the valve/LED/buzzer/...
+        
+        Args:
+           pin (int): the teensy pin wired to the controlled device
+
+        Example:
+            >>> serial_out = {'odor_valve': direct_on_off(pin=3)}
+            >>> get.send_out('odor_valve', 0) # turn the signal off / shut down the valve/LED/buzzer/...
         """
         return {'value': start_value, 'encoding': bool, 'byte_length': 1,
                 'default': default_value, 'reset_after_send': False,
@@ -292,6 +296,23 @@ class _Devices:
         return {'value': 0, 'encoding': 'uint', 'byte_length': 2,
                 'default': 0, 'reset_after_send': True,
                 'arduino_class': 'TimedOn', 'arduino_args': pin}
+    
+    def tone(self, pin:int):
+        """
+        Set the tone frequency to be output by a passive buzzer or piezo device.
+        This device uses the arduino tone function. Send 0 to not provide a tone.
+        The maximum providable frequency is 65_535.
+
+        Args:
+           pin (int): the teensy pin connected to the buzzer
+        
+        Example:
+            >>> serial_out = {'frequency': tone(pin=3)}
+            >>> get.send_out('frequency', 500)
+        """
+        return {'value': 0, 'encoding': 'uint', 'byte_length': 2,
+                'default': 0, 'reset_after_send': False,
+                'arduino_class': 'Tone', 'arduino_args': pin}
     
     def servo(self, pin:int):
         """A servo motor to dynamically move experiment elements upon get.send_out(<device_name>, angle)
