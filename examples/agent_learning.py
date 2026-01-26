@@ -7,7 +7,7 @@ serial_in = {
 
 serial_out = {
     'reward_valve': devices.timed_on(pin=40),
-    'beep':         devices.buzzer(pin=26)
+    'beep':         devices.tone(pin=26)
 }
 
 #---------------------------------- AGENT ----------------------------------
