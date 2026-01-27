@@ -146,24 +146,45 @@ class Networker(object):
 
                         # print(sens_name, length_history)
                         log_times = self.ser.read(length_history * 4)
-                        log_values = self.ser.read(length_history * sens_data['byte_length'])
+                        num_values = 1
+                        if type(sens_data['value'])==list:
+                            num_values = len(sens_data['value'])
+                        log_values = self.ser.read(length_history * sens_data['byte_length'] * num_values)
 
                         if length_history != 0:
-                            value = log_values[-sens_data['byte_length']:]
                             signed = True if sens_data['encoding'] == int else False
-                            value = int.from_bytes(value, 'little', signed=signed)
-                            sens_data['value'] = value
-                            # print(sens_data['value'])
-                            # --- Log the data ---
-                            if sens_data['logging'] and self.run_controls.active:
-                                log_entry = self.serial_in_log.setdefault(sens_name, [])
+                            if num_values == 1:
+                                value = log_values[-sens_data['byte_length']:]
+                                value = int.from_bytes(value, 'little', signed=signed)
+                                sens_data['value'] = value
+                                # print(sens_data['value'])
+                                # --- Log the data ---
+                                if sens_data['logging'] and self.run_controls.active:
+                                    log_entry = self.serial_in_log.setdefault(sens_name, [])
+                                    for i in range(length_history):
+                                        t = log_times[i*4:i*4+4]
+                                        t = int.from_bytes(t, 'little', signed=False)
+                                        value = log_values[i*sens_data['byte_length']:i*sens_data['byte_length']+sens_data['byte_length']]
+                                        value = int.from_bytes(value, 'little', signed=signed)
+                                        log_entry.append((t, value))
+                            else:
+                                # example encoding for 3 communicated timepoints at 2 values of byte_length 2:
+                                # t0, t1, t2 -> t0_v0b0, t0_v0b1, t0_v1b0, t0_v1b1 -> 
+                                #               t1_v0b0, t1_v0b1, t1_v1b0, t1_v1b1 -> t2_v0b0, t2_v0b1, t2_v1b0, t2_v1b1
+                                if sens_data['logging']:
+                                    log_entry = self.serial_in_log.setdefault(sens_name, [])
                                 for i in range(length_history):
                                     t = log_times[i*4:i*4+4]
                                     t = int.from_bytes(t, 'little', signed=False)
-                                    value = log_values[i*sens_data['byte_length']:i*sens_data['byte_length']+sens_data['byte_length']]
-                                    signed = True if sens_data['encoding'] == int else False
-                                    value = int.from_bytes(value, 'little', signed=signed)
-                                    log_entry.append((t, value))
+                                    values_bytes = log_values[i*sens_data['byte_length']*num_values:i*sens_data['byte_length']*num_values+(sens_data['byte_length']*num_values)]
+                                    values = []
+                                    for v in range(num_values):
+                                        value = values_bytes[v*num_values:v*num_values+sens_data['byte_length']]
+                                        value = int.from_bytes(value, 'little', signed=signed)
+                                        values.append(value)
+                                    if sens_data['logging'] and self.run_controls.active:
+                                        log_entry.append((t, values))
+                                sens_data['value'] = values
 
                 debug_in = None
                 if self.ser.in_waiting != 0:

@@ -54,12 +54,12 @@ class Sensor{
     byte sensBytes[32];
     int numSensBytes = 1;
 
-
     #ifndef DIRECT_MODE
     int lenHistory = 0;
-    int numValues = 1; // currently unused variable
+    int numValues = 1;
     // start with a default max of 12 sensBytes so the history has sufficient space.
-    // (use a lower default if memory size becomes an issue) 
+    // sensBytes can contain a sequence of values if numSensBytes!=1 - v0b0,v0b1,v1b0,v1b1, ...
+    // (use a lower default if memory size becomes an issue)
     // The history keeps track of up to 1024 yet uncommunicated datapoints
     byte historyBytes[1024][12];
     byte historyMillis[1024][4];
@@ -74,14 +74,28 @@ class Sensor{
     }
 
     void valueToBytes(int i){
-      // examples: int i = 10;
-      //           valueToBytes(i);
+      // example: int i = 10;
+      //          valueToBytes(i);
       if (numSensBytes == 1){
         sensBytes[0] = i & 0xFF;
       }
       else if (numSensBytes == 2){
         sensBytes[0] = i & 0xFF;
         sensBytes[1] = (i >> 8) & 0xFF;
+      }
+    }
+
+    void valueToBytes(int i, int valueIndex){
+      // example: int i = 10;
+      //          int j = 33;
+      //          valueToBytes(i, 0);
+      //          valueToBytes(j, 1);
+      if (numSensBytes == 1){
+        sensBytes[valueIndex] = i & 0xFF;
+      }
+      else if (numSensBytes == 2){
+        sensBytes[valueIndex*2] = i & 0xFF;
+        sensBytes[valueIndex*2+1] = (i >> 8) & 0xFF;
       }
     }
 

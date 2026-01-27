@@ -60,14 +60,14 @@ void loop(){
     for(int sens=0; sens<netw->numSensors; sens++){
       Sensor* sensor = config::sensors[sens];
       bool different = false;
-      for(int b=0; b<sensor->numSensBytes; b++){
+      for(int b=0; b<sensor->numSensBytes*sensor->numValues; b++){
         if (sensor->sensBytes[b] !=sensor->lastSensedBytes[b]){
           different = true;
         }
       }
       if (different){
         // update the history and the most recent value with the new data
-        for(int b=0; b<sensor->numSensBytes; b++){
+        for(int b=0; b<sensor->numSensBytes*sensor->numValues; b++){
          sensor->historyBytes[sensor->lenHistory][b] =sensor->sensBytes[b];
          sensor->lastSensedBytes[b] =sensor->sensBytes[b];
         }
@@ -165,7 +165,7 @@ void loop(){
           Serial.write(sensor->historyMillis[entry], 4); // timestamps
         }
         for(int entry=0; entry<sensor->lenHistory; entry++){
-          Serial.write(sensor->historyBytes[entry], sensor->numSensBytes); //values
+          Serial.write(sensor->historyBytes[entry], sensor->numSensBytes*sensor->numValues); //values
         }
 
         sensor->lenHistory = 0;
