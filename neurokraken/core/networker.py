@@ -179,7 +179,7 @@ class Networker(object):
                                     values_bytes = log_values[i*sens_data['byte_length']*num_values:i*sens_data['byte_length']*num_values+(sens_data['byte_length']*num_values)]
                                     values = []
                                     for v in range(num_values):
-                                        value = values_bytes[v*num_values:v*num_values+sens_data['byte_length']]
+                                        value = values_bytes[v*sens_data['byte_length']:v*sens_data['byte_length']+sens_data['byte_length']]
                                         value = int.from_bytes(value, 'little', signed=signed)
                                         values.append(value)
                                     if sens_data['logging'] and self.run_controls.active:

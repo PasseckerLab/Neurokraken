@@ -85,17 +85,17 @@ class Sensor{
       }
     }
 
-    void valueToBytes(int i, int valueIndex){
+    void valueToBytes(int i, int slot){
       // example: int i = 10;
       //          int j = 33;
       //          valueToBytes(i, 0);
       //          valueToBytes(j, 1);
       if (numSensBytes == 1){
-        sensBytes[valueIndex] = i & 0xFF;
+        sensBytes[slot] = i & 0xFF;
       }
       else if (numSensBytes == 2){
-        sensBytes[valueIndex*2] = i & 0xFF;
-        sensBytes[valueIndex*2+1] = (i >> 8) & 0xFF;
+        sensBytes[slot*2] = i & 0xFF;
+        sensBytes[slot*2+1] = (i >> 8) & 0xFF;
       }
     }
 

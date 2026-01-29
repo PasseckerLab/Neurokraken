@@ -38,7 +38,7 @@ class Neurokraken:
                                           Defaults to the current folder './'. None to not save a log.
             mode (str, optional): Operating mode ('teensy', 'keyboard' or 'agent') Defaults to 'teensy'
             agent (class, optional): A class with a def act() method to run when mode='agent'
-            display_config (dict, optional): A configurators.Display() to position the subject's task view among
+            display (dict, optional): A configurators.Display() to position the subject's task view among
                                              the computer's connected displays.
             cameras (list, optional): List of camera configurations using configurators.Camera()
             microphones (list, optional): List of microphone configurations using configurators.Microphone()
