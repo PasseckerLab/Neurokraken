@@ -16,6 +16,7 @@ namespace krakenVars{
   // global variables
   // active/inactive control
   bool active = false;
+  bool starting = false;
   // variables for fast pulse clock pin timing from StartStop
   int pulseClockPins[16];
   int numPulseClockPins = 0;
@@ -44,6 +45,27 @@ void setup(){
 }
 
 void loop(){
+  if (krakenVars::starting){
+    if (millisSinceSync < 1){ 
+      // StartStop set the time to 0, but the unaffected tick-rate might already
+      // be halfway through the current millisecond => loop until ticked over to
+      // the next millisecond, then reset the time to 0 and start
+      return;
+    } else {
+      millisSinceSync = 0;
+      microsSinceHour = 0;
+      millisLastSensoring = 4000000000;
+
+      // If a pulse clock is used, directly change its pins
+      for (int i=0; i<krakenVars::numPulseClockPins; i++){
+        digitalWrite(krakenVars::pulseClockPins[i], LOW);
+      }
+
+      krakenVars::starting = false;
+      krakenVars::active = true;
+    }
+  }
+
   debug->resetDebugString();
 
   for(unsigned int proc=0; proc<arraySize(config::processes); proc++){
@@ -68,15 +90,15 @@ void loop(){
       if (different){
         // update the history and the most recent value with the new data
         for(int b=0; b<sensor->numSensBytes*sensor->numValues; b++){
-         sensor->historyBytes[sensor->lenHistory][b] =sensor->sensBytes[b];
-         sensor->lastSensedBytes[b] =sensor->sensBytes[b];
+          sensor->historyBytes[sensor->lenHistory][b] = sensor->sensBytes[b];
+          sensor->lastSensedBytes[b] = sensor->sensBytes[b];
         }
         longToBytes(sensor->historyMillis[sensor->lenHistory], millisSinceSync);
         if (krakenVars::active){
-         sensor->lenHistory = min(sensor->lenHistory +1, 1023);
+          sensor->lenHistory = min(sensor->lenHistory +1, 1023);
         } else {
-          // otherwise just keep this one datapoint alive. Incrementing with nobody to read and reset would crash the code. 
-         sensor->lenHistory = 1;
+          // otherwise just keep this one datapoint alive rather than incrementing data for nobody to read.
+          sensor->lenHistory = 1;
         }
       }
     }

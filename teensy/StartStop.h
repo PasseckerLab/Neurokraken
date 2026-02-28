@@ -17,13 +17,7 @@ class StartStop : public Control{
         // note that the first millisecond transition will happen within <1ms because 
         // tick timing remains unchanged
         
-        // start the clock
-        krakenVars::active = true;
-        
-        // If a pulse clock is used, directly change its pins
-        for (int i=0; i<krakenVars::numPulseClockPins; i++){
-          digitalWrite(krakenVars::pulseClockPins[i], LOW);
-        }
+        krakenVars::starting = true;
       }
       if(startStop == 2){
         // stop the clock

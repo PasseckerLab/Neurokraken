@@ -112,14 +112,12 @@ class Main(Sketch):
 
                 self.netw.write_teensy_data(self.serial_out)
                 
-                # received_updated_serial = False
-                # while not received_updated_serial:
-                while not self.serial_in['t_ms']['value'] < 1000:
-                    # We have not yet received updated serial from the teensy
-                    # only set state machine active once the teensy has responded with updated time and data
+                enacted_start = False
+                while not enacted_start:
                     received_updated_serial, _ = self.netw.read_teensy_data(self.serial_in)
                     if received_updated_serial:
                         self.netw.write_teensy_data(self.serial_out)
+                        enacted_start = True
 
                 self.run_controls.beginning = False
                 self.run_controls.active = True
