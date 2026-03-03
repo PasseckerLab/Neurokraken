@@ -112,12 +112,12 @@ class Main(Sketch):
 
                 self.netw.write_teensy_data(self.serial_out)
                 
-                enacted_start = False
-                while not enacted_start:
+                communications = 0
+                while communications < 2:
                     received_updated_serial, _ = self.netw.read_teensy_data(self.serial_in)
                     if received_updated_serial:
                         self.netw.write_teensy_data(self.serial_out)
-                        enacted_start = True
+                        communications += 1
 
                 self.run_controls.beginning = False
                 self.run_controls.active = True
