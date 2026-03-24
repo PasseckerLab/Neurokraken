@@ -19,8 +19,7 @@ serial_out = {
 }
 
 cam_width, cam_height = 1280, 720
-camera = Camera(name='Kayeton_mono_2.8-12mm', width=cam_width, height=cam_height,
-                max_capture_fps=100, vid_fps=100)
+camera = Camera(name='Kayeton_mono_2.8-12mm', width=cam_width, height=cam_height, fps=100)
 if not with_cutie:
     cameras = []
 

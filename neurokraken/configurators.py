@@ -47,26 +47,26 @@ class Camera:
         capturer (str): Video capture backend to use. Defaults to 'cv2'. Alternatively 'GenICam'.
         width (int): Capture width in pixels. Defaults to None.
         height (int): Capture height in pixels. Defaults to None.
-        vid_fps (int): Maximum frames per second for capture. Defaults to 500.
+        fps (int): Targeted frames per second.
+            If the target cannot be reached, frames will be captured at the highest possible framerate. Defaults to 30.
         cv2_backend: OpenCV capture backend constant. Defaults to cv2.CAP_DSHOW.
-        max_capture_fps (int): Maximum capture frames per second. Defaults to 5000.
 
         turn_image (bool): Whether to turn images 180 degree. Can have slight performance impact. Defaults to False.
-        grey_scaling (bool): Whether to convert to grayscale. Defaults to False.
-        single_channel_to_grey (bool): Whether to extract single channel as grey. Defaults to False.
-        single_channel_to_grey_channel (int): Channel index for single channel extraction. Defaults to 0.
+        color2grey (bool): Frames are internally received as RGB color even with greyscale cameras. 
+            Converting to greyscale improves the camera's compute impact. Defaults to True.
+        color2grey_use_single_RGB_channel (int|None): When converting color2grey, Extract a specified single channel (int) 
+            or use a weighted average (None). Defaults to None.
 
-        ui_view_active (bool): Whether to display live view in UI. Defaults to False.
+        ui_view_enabled (bool): Whether to display live view in UI. Defaults to False.
         ui_view_scale (float): Resolution caling factor for UI view display. Defaults to 0.5.
         ui_view_step (int): Frame skip interval for UI view. Defaults to 1.
 
         save_as_vid (bool): Whether to save output as video file. Defaults to True.
         vid_codec (str): Video codec for saving. Defaults to 'mp4v'.
         vid_container (str): Video container format. Defaults to 'mp4'.
-        vid_fps (int): Video frames per second for saved files. Defaults to None.
         save_as_images (bool): Whether to save frames as individual images. Defaults to False.
 
-        stream_active (bool): Whether to enable streaming. Defaults to False.
+        stream_active (bool): Whether to enable streaming. Experimental feature. Defaults to False.
         stream_port (int): Network port for streaming. Defaults to 50000.
         stream_scaling (float): Resolution scaling factor for streamed frames. Defaults to 0.5.
         stream_step (int): Frame skip interval for streaming. Defaults to 10.
@@ -78,10 +78,10 @@ class Camera:
     capturer:str = 'cv2'
     width:int = None
     height:int = None
+    fps:int = 30
     cv2_backend:any = cv2.CAP_DSHOW
     cv2_fps:int = 500
     harvesters_path_GenTL_cti:str = None
-    max_capture_fps:int = 5_000
 
     # image processing
     turn_image:bool = False
@@ -97,7 +97,6 @@ class Camera:
     save_as_vid:bool = True
     vid_codec:str = 'mp4v'
     vid_container:str = 'mp4'
-    vid_fps:int = 30
     save_as_images:bool = False
 
     # streaming

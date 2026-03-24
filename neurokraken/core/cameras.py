@@ -187,7 +187,7 @@ class Cam_Sketch(Sketch):
             file_type = self.properties.vid_container
             fourcc = cv2.VideoWriter_fourcc(*codec)
             save_path = os.path.join(self.log_dir, self.properties.name + '.' + file_type)
-            self.out = cv2.VideoWriter(save_path, fourcc, self.properties.vid_fps,
+            self.out = cv2.VideoWriter(save_path, fourcc, self.properties.fps,
                                        (width, height), isColor=not self.greyscaling)
 
     def settings(self):
@@ -195,15 +195,35 @@ class Cam_Sketch(Sketch):
 
     def setup(self):
         self.get_surface().set_visible(False)
-        self.frame_rate(self.properties.max_capture_fps)
+        self.frame_rate(self.properties.fps * 10)
 
         self.current_frame = 0
+        self.t_last_frame_while_inactive = -1000
 
     def draw(self):
         if self.run_controls.quitting:
             self.shutdown()
             return
-
+        
+        # frame capture timing
+        capture_frame = False
+        if self.run_controls.active:
+            time_next_frame = self.current_frame * (1000/self.properties.fps)
+            # keep capturing until the next_frame's time is ahead of now
+            if self.time_ms['value'] >= time_next_frame:
+                capture_frame = True
+        if not self.run_controls.active:
+            # when autostart=False, the pre-start/reset time may be a high milliseconds value
+            time_next_frame = self.t_last_frame_while_inactive + (1000/self.properties.fps)
+            if (self.time_ms['value'] >= time_next_frame) \
+                or (time_next_frame - self.time_ms['value'] > 10_000): 
+                # pre-start experiment time reset can have left the next_frame too far in the future
+                capture_frame = True
+                self.t_last_frame_while_inactive = self.time_ms['value']
+            
+        if not capture_frame:
+            return
+        
         match self.capturer:
             case 'cv2':
                 ret, frame_read = self.cap.read()
@@ -295,7 +315,7 @@ class Cam_Sketch(Sketch):
         return True
 
     def calc_vid_time(self, frame_idx):
-        millis = frame_idx * (1./self.properties.vid_fps) * 1000
+        millis = frame_idx * (1./self.properties.fps) * 1000
         secs = millis / 1000
         mins = secs / 60
         hours = mins / 60

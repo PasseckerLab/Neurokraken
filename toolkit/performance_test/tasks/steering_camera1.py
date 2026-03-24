@@ -12,8 +12,7 @@ serial_out = {'reward': devices.timed_on(pin=5)
 
 camera = Camera(name='Kayeton_mono_2.8-12mm',
                 idx=0, width=1280, height=720,
-                max_capture_fps=100, vid_fps=100,
-                ui_view_enabled=True, ui_view_step=3, ui_view_scale=0.4)
+                fps=100, ui_view_enabled=True, ui_view_step=3, ui_view_scale=0.4)
 
 from pathlib import Path
 log_dir = Path(__file__).parent.parent.parent.parent / 'logs'
