@@ -1,5 +1,6 @@
 from configurators import Camera as Camera_config
 from py5 import Sketch
+import py5
 import numpy as np
 import cv2
 import time
@@ -125,12 +126,20 @@ class Cam_Sketch(Sketch):
             self.single_channel_to_grey = True
             self.channel2grey = 2 - self.properties.color2grey_use_single_RGB_channel
         
-        # create a py5image to store the preview image if ui_view_enabled is True
-        channeldepth = self.ALPHA if self.greyscaling else self.RGB
-        # use a scaled down image to reduce the computational expense
-        self.preview = self.create_image(
-            int(width * self.properties.ui_view_scale),
-            int(height * self.properties.ui_view_scale), channeldepth)
+        self.preview_width = int(width * self.properties.ui_view_scale)
+        self.preview_height = int(height * self.properties.ui_view_scale)
+        self.preview:py5.Py5Image|np.ndarray = None
+        match self.properties.ui_view_format:
+            case 'py5':
+                # use a scaled down image to reduce the computational expense
+                # create a py5image to store the preview image if ui_view_enabled is True
+                channeldepth = self.ALPHA if self.greyscaling else self.RGB
+                self.preview = self.create_image(self.preview_width, self.preview_height, channeldepth)
+            case 'numpy':
+                shape = [self.preview_height, self.preview_width, 3]
+                if self.greyscaling:
+                    shape = [self.preview_height, self.preview_width]
+                self.preview = np.zeros(shape=shape, dtype=np.uint8)
 
         self.save_vid = properties.save_as_vid
         self.save_images = properties.save_as_images
@@ -262,10 +271,14 @@ class Cam_Sketch(Sketch):
 
         if self.properties.ui_view_enabled:
             if self.frame_count % self.properties.ui_view_step == 0:
-                preview = cv2.resize(frame, (self.preview.width, self.preview.height))
-                if self.reverse_BGR:
+                preview = cv2.resize(frame, (self.preview_width, self.preview_height))
+                if self.reverse_BGR and not self.greyscaling:
                     preview = cv2.cvtColor(preview, cv2.COLOR_BGR2RGB)
-                self.create_image_from_numpy(preview.get(), bands='L', dst=self.preview)
+                match self.properties.ui_view_format:
+                    case 'py5':
+                        self.create_image_from_numpy(preview.get(), bands='L', dst=self.preview)
+                    case 'numpy':
+                        self.preview = preview.get()
 
         # EXPERIMENTAL
         if self.stream_active:

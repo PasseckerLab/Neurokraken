@@ -7,7 +7,8 @@ from pathlib import Path
 from configurators import Microphone as Microphone_config
 
 class Microphone(Sketch):
-    def __init__(self, properties:Microphone_config, run_controls, log_dict:dict, time_ms:dict, log_dir:str|Path):
+    def __init__(self, properties:Microphone_config, run_controls, log_dict:dict, time_ms:dict, 
+                 log_dir:str|Path, verbose:bool=False):
         super().__init__()
         self.name = properties.name
         self.idx = properties.idx
@@ -18,6 +19,7 @@ class Microphone(Sketch):
         self.log_dir = Path(log_dir) / (self.name + '.wav')
         self.time_ms = time_ms
         self.log_dict = log_dict
+        self.verbose = verbose
 
         self.log_dict[self.name] = []
         self.keyframe_last = 0
@@ -43,8 +45,6 @@ class Microphone(Sketch):
         # indata is shape (frames, channels)
         # frame number could be set as blocksize= in sd.InputStream()
         self.total_frames += frames # +1136
-        # if status:
-        #     print(f'microphone issue: {status}')
         if self.has_started:
             self.q.put(indata.copy())
             if self.time_ms['value'] - self.keyframe_last > self.keyframe_interval:
@@ -61,24 +61,28 @@ class Microphone(Sketch):
         self.frame_rate(50)
 
     def draw(self):
-        # print(self.stream.cpu_load())
         if self.run_controls.quitting:
             self.shutdown()
             return
+        if self.has_started and not self.run_controls.active:
+            # the task has been stopped
+            self.shutdown()
         if self.run_controls.active:
             if not self.has_started:
                 self.has_started = True
                 self.stream.start()
                 self.t_start = self.time_ms['value']
-            # print(f'queue length: {self.q.qsize()}')
             self.save_file.write(self.q.get())
 
     def shutdown(self):
+        self.log_dict[self.name].append((self.time_ms['value'], 
+                                        f'{int((self.total_frames / self.sample_rate) // 60)}m:{(self.total_frames / self.sample_rate) % 60:.3f}s'))
         self.stream.stop()
         total_duration = self.time_ms['value'] - self.t_start
         self.save_file.close()
 
         audio_duration_s = self.total_frames / self.sample_rate
         divergence = audio_duration_s - (total_duration / 1000)
-        print(f'divergence: {divergence:.3f}s, total duration: {total_duration/1000:.3f}s, audio duration: {audio_duration_s:.3f}s, t_start: {self.t_start}')
+        if self.verbose:
+            print(f'divergence: {divergence:.3f}s, total duration: {total_duration/1000:.3f}s, audio duration: {audio_duration_s:.3f}s, t_start: {self.t_start}')
         self.exit_sketch()

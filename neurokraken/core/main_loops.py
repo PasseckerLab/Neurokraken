@@ -4,7 +4,7 @@ import pathlib, json, pickle
 main, visual = None, None
 
 class Main(Sketch):
-    def __init__(self, networker, serial_in, serial_out, run_controls, log:pathlib.Path, log_dir:str, state_machine, 
+    def __init__(self, networker, serial_in, serial_out, run_controls, log:dict, log_dir:str, state_machine, 
                  max_framerate=8_000, permanent_states:list[Callable]=[], threads_info:dict={}, log_performance=False,
                  run_at_start:Callable=lambda:None, run_at_quit:Callable=lambda:None, run_post_trial:Callable=lambda:None):
         super().__init__()

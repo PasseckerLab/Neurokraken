@@ -57,7 +57,9 @@ class Camera:
         color2grey_use_single_RGB_channel (int|None): When converting color2grey, Extract a specified single channel (int) 
             or use a weighted average (None). Defaults to None.
 
-        ui_view_enabled (bool): Whether to display live view in UI. Defaults to False.
+        ui_view_enabled (bool): Whether to maintain a compressed/performant camera feed for live view in UI. 
+            The current frame can be accessed with get.get_camera(i, preview=True). Defaults to False.
+        ui_view_format (str): 'py5' or 'numpy'. the data type of the frame provided by get_camera(). Defaults to 'py5'
         ui_view_scale (float): Resolution caling factor for UI view display. Defaults to 0.5.
         ui_view_step (int): Frame skip interval for UI view. Defaults to 1.
 
@@ -90,6 +92,7 @@ class Camera:
 
     # sending frames to the ui
     ui_view_enabled:bool = False
+    ui_view_format:str = 'py5'
     ui_view_scale:float = 0.5
     ui_view_step:int = 1
 
