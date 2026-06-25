@@ -18,6 +18,7 @@ dependencies = [
 ]
 
 # LOCAL DEVELOPMENT MODE
-# To test local changes to neurokraken's codebase uncomment the block below before `uv run example_name.py`
+# To test local changes to neurokraken's codebase uncomment the block below, then run `uv run <example_name.py>`
+# (If needed force reinstall with: `uv sync --reinstall-package neurokraken`)
 # [tool.uv.sources]
-# neurokraken = { path = "../" }
+# neurokraken = { path = "../", editable = true}

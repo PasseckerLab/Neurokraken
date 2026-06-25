@@ -31,7 +31,7 @@ class State:
                                          also run after all states with trial_complete=True.
                                          Defaults to False.
     """
-    def __init__(self, next_state:str|list, max_time_s:float|tuple[float,float]|Callable[[],float]=1_000_000.0,
+    def __init__(self, next_state:str|list|None=None, max_time_s:float|tuple[float,float]|Callable[[],float]=1_000_000.0,
                  run_at_start:Callable[[Self],      Any] | list[Callable[[Self],      Any]]=(),
                  run_at_end:  Callable[[Self, bool],Any] | list[Callable[[Self, bool],Any]]=(),
                  trial_complete=False):
@@ -39,6 +39,7 @@ class State:
         self.max_t_range = self.max_t if isinstance(self.max_t, tuple) else None
         self.max_t_func = self.max_t if callable(self.max_t) else None
         self.next_state = next_state
+        # if next_state is None it will be set to the state's own name upon define_experiment()
         self.run_at_start = run_at_start
         self.run_at_end = run_at_end
         self.trial_complete = trial_complete
@@ -179,6 +180,8 @@ class State_Machine():
             for state_name, state in block.items():
                 state.name = state_name
                 state.t_ms = self.t_ms
+                if state.next_state is None:
+                    state.next_state = state.name
         if start_block is None:
             # the start_block is the first block key
             start_block = [*self.blocks][0]

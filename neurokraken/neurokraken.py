@@ -261,15 +261,19 @@ class Neurokraken:
         # (reimporting experiment.py as is would reexecute code like adding duplicate achievements)
         controls.get.experiment = experiment
 
-        if isinstance(list(task.values())[0], dict):
-            blocks = task
-        else:
-            # the task is just a dict/progression of states, add a minimal block around it
-            blocks = {'block': task}
+        from core import state_machine
+        if isinstance(task, state_machine.State):
+            # The task was provided as just a State class, i.e. task = My_State() 
+            # => make it a dict
+            task = {'state': task}
+        if isinstance(list(task.values())[0], state_machine.State):
+            # the task is a dict/progression of states, i.e. 'state_name': My_State(next_state='state_name')
+            # => add a minimal block around it
+            task = {'block': task}
 
         # there hasn't been a communication yet, so the original t_ms of a block/trial/state will still be 0
         self.start_block=start_block
-        self.machine.define_experiment(blocks, start_block=start_block)
+        self.machine.define_experiment(task, start_block=start_block)
 
         controls.get.permanent_states = permanent_states
 
