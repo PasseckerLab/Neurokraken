@@ -3,6 +3,7 @@
 *.egg-info/
 venv_neurokraken/*
 uv.lock
+.vscode/
 
 logs/*
 !logs/.gitkeep
@@ -39,3 +40,4 @@ build/*
 **/GazeTracking/
 
 examples/Neurokraken_*
+

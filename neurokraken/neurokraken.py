@@ -10,7 +10,17 @@ from threading import Thread
 import time
 import importlib.util
 import inspect
+
+jdk_dir = Path.home() / ".jdk"
+if not (jdk_dir.exists() and any(jdk_dir.iterdir())):
+    print("Neurokraken could not find an existing java-jdk - downloading now")
+    import jdk
+    print('Java installed to', jdk.install('21'))
+    # import jdk will download the jdk into $HOME/.jdk/<VERSION>, but not add JAVA_HOME to the path, so the command line won't
+    # be able to find a java with `java --version`, but without a global java py5 will next search for a jdk in in $HOME
+    # and be able to utilize the jdk found there.
 from py5 import Sketch
+
 # type hint imports
 from typing import Callable, Container
 from core.state_machine import State

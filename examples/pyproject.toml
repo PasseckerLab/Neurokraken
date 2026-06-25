@@ -1,0 +1,23 @@
+[project]
+name = "examples"
+version = "0.1.0"
+requires-python = ">=3.13"
+dependencies = [
+    'install-jdk',
+    'py5',
+    'opencv-python>=3.12',
+    'pyserial',
+    'keyboard',
+    'psutil',
+    'neurokraken @ git+https://github.com/PasseckerLab/Neurokraken@main',
+    'krakengui @ git+https://github.com/alexanderwallerus/kraken-gui@main',
+    'matplotlib',
+    'sounddevice',
+    'soundfile',
+    'imageio_ffmpeg',
+]
+
+# LOCAL DEVELOPMENT MODE
+# To test local changes to neurokraken's codebase uncomment the block below before `uv run example_name.py`
+# [tool.uv.sources]
+# neurokraken = { path = "../" }
