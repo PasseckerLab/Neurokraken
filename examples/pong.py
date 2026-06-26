@@ -9,6 +9,7 @@ serial_out = {
     'reward_valve':   devices.timed_on(pin=40),
 }
 
+
 display = Display(size=(800,600))
 
 nk = Neurokraken(serial_in=serial_in, serial_out=serial_out, 
@@ -16,8 +17,8 @@ nk = Neurokraken(serial_in=serial_in, serial_out=serial_out,
 
 import random
 from neurokraken.controls import get
-from neurokraken.tools import Millis
-millis_timer = Millis()
+from neurokraken.tools import Timer
+timer = Timer()
 
 get.score = [0, 0]
 get.speed = 10
@@ -37,10 +38,10 @@ class Pong(State):
         self.last_position = get.read_in('movement')
 
     def loop_main(self):
-        if millis_timer() < 16:
+        if timer() < 16:
             # run at ~60 hz => only continue if 16ms have passed
-            return False, 0
-        millis_timer.zero()
+            return
+        timer.zero()
         # update the player paddle position
         new_position = get.read_in('movement')
         delta_player = new_position - self.last_position
@@ -93,7 +94,8 @@ class Pong(State):
             get.log['trials'][-1]['win'] = False
             finished = True
 
-        return finished, 0
+        if finished:
+            get.progress_state('pong')
         
     def loop_visual(self, sketch):
         sketch.background(0)
@@ -112,7 +114,7 @@ class Pong(State):
         sketch.text(f'{get.score[0]}        {get.score[1]}', 400, 40)
 
 task = {
-    'pong': Pong(next_state='pong', trial_complete=True),
+    'pong': Pong(trial_complete=True),
 }
 
 nk.load_task(task)

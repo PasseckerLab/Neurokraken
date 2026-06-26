@@ -25,14 +25,11 @@ class Green(State):
             self.led_status = not self.led_status
             get.send_out('led', self.led_status)
             self.t_last_switch = get.time_ms
-        return False, 0
     
     def loop_visual(self, sketch):
         sketch.background(0,255,0)
 
-task = {
-    'waiting': Green(next_state='waiting'),
-}
+task = Green()
 
 nk.load_task(task)
 

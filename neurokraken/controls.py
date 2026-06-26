@@ -115,13 +115,17 @@ class Get:
             >>> # Switch within a UI-triggered element of code
             >>> get.switch_block('alternating_block')
         """
-        self.progress_state:Callable[[str], None]= self._state_machine.progress_state
-        """Override the task flow to progress to a different state of this block now
+    def progress_state(self, next_state:str) -> None:
+        """Progress from the current state to the provided next_state of the current block.
         Synonymous with get.current_state = 'x'
-        
+        State names are provided in the string dictionary read by neurokraken.load_task(\<task\>), i.e.
+        task = {'my_name': My_State()} would have one state by the name of 'my_name'.
+        progress_state() can also be used to -by name- progress to the current state i.e. to start a new trial.
+                
         Args:
-            next_state_name (str): The name of the next state to progress to
+            next_state (str): The name of the next state to progress to
         """
+        self._state_machine.progress_state_onto = next_state
 
     #------------------------- SERIAL -------------------------
     time_ms:int = property(fget=lambda self : self.serial_in['t_ms']['value'])
@@ -186,7 +190,7 @@ class Get:
     """
     # trial_states:list = property(fget=lambda self : self._state_machine.trial_states)
     current_state = property(fget=lambda self : self._state_machine.current_state,
-                             fset=lambda self, next_state : self._state_machine.progress_state(next_state))
+                             fset=lambda self, next_state : self.progress_state(next_state))
     """Property to check and override the current state outside of the existing state_flow.
 
     Progressing to a new state can alternatively performed with get.progress_state(state_name)

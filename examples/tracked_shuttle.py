@@ -32,20 +32,17 @@ class Lick_left(State):
         if get.read_in("lick_left") == 1:
             get.log['trials'][-1]['t_lick_l'] = get.read_in('t_ms')
             get.send_out('reward_right', 60)
-            return True, 0 
-        return False, 0
-
+            get.progress_state('lick_right')
 class Lick_right(State):
     def loop_main(self):
         if get.read_in("lick_right") == 1:
             get.log['trials'][-1]['t_lick_r'] = get.read_in('t_ms')
             get.send_out('reward_left', 60)
-            return True, 0 
-        return False, 0
+            get.progress_state('lick_left')
 
 task = {
-    'lick_left': Lick_left(max_time_s=60_000, next_state='lick_right'),
-    'lick_right': Lick_right(max_time_s=60_000, next_state='lick_left', trial_complete=True)
+    'lick_left': Lick_left(max_time_s=60_000),
+    'lick_right': Lick_right(max_time_s=60_000, trial_complete=True)
 }
 
 nk.load_task(task)

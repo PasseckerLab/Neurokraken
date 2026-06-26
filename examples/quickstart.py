@@ -13,16 +13,15 @@ from neurokraken.controls import get
 
 class Poke_for_reward(State):
     def loop_main(self):
-        if get.read_in('light_beam') > 512:
+        if get.read_in('light_beam') > 400:
             get.send_out('LED', True)
-            return True, 0
         else:
             get.send_out('reward_valve', 100)
             get.send_out('LED', False)
-            return False, 0
+            get.progress_state('delay')
 
 task = {
-    'poke': Poke_for_reward(next_state='delay'),
+    'poke': Poke_for_reward(),
     'delay': State(next_state='poke', max_time_s=10)
 }
 

@@ -9,10 +9,9 @@ class State:
     loop_main()'s 2nd returned value, a outcome number, selects the list index.
 
     Args:
-        next_state (str | list): The next state or list of possible next states.
-                                    If you provide a list, the return of your def loop_main()
-                                    will determine the next state. I.e. return True, 2 would
-                                    progress to the the list entry[2].
+        next_state (None | str | list): The next state or list of possible next states.
+            If you provide a list, the return of your def loop_main() will determine the next state.
+            I.e. return True, 2 would progress to the the list entry[2].
         max_time_s (int | tuple[int,int] | Callable[[],float], optional): 
             The maximum state duration (seconds) after which the next state will be entered automatically.
             Defaults to 1_000_000.0.
@@ -124,7 +123,12 @@ class State:
                 bool trial_complete - useful for updating metrics when a state was completed
         """
         
-        finished, outcome = self.loop_main()
+        conclusion = self.loop_main()
+        if conclusion is None:
+            # user provided no return progression info
+            finished, outcome = False, 0
+        else:
+            finished, outcome = conclusion
         if finished or self.t_ms['value'] - self.start_time > self.max_t * 1000:
             self.on_end()
             self.run_at_end_wrapper(finished)
@@ -135,7 +139,7 @@ class State:
             else:
                 next_state_name = self.next_state[outcome]
             return True, next_state_name, self.trial_complete,
-        return False, None, None
+        return False, None, self.trial_complete
 
 class State_Machine():
     def __init__(self, current_ms:dict, serial_out:dict, run_controls,
@@ -150,6 +154,10 @@ class State_Machine():
         self.trial_states = {}
         self.current_state:State = None
         self.starting_state:State = None
+
+        self.progress_state_onto:str|None = None
+        '''user/get providable state to progress onto after the current main loop iteration.
+        Resets to None after progression'''
 
         # logging
         self.t_ms = current_ms
@@ -191,7 +199,12 @@ class State_Machine():
 
     def progress_state(self, next_state_name:str):
         # reset() the upcoming state before it becomes the self.current_state parallel loops will access
-        self.starting_state = self.trial_states[next_state_name]
+        try:
+            self.starting_state = self.trial_states[next_state_name]
+        except KeyError as e:
+            print(f'Error, tried to progress to state {next_state_name} but no state of that name exists' +
+                  f'within {list(self.trial_states.keys())}')
+            print(e)
         self.starting_state.reset_time()
         self.starting_state.on_start() 
         self.starting_state.run_at_start_wrapper()

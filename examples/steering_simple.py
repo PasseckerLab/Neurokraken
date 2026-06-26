@@ -49,9 +49,7 @@ class Steer(State):
             if (self.position > 700 and good_side == 'right') or (self.position < 100 and good_side == 'left'):
                 get.send_out('reward_valve', 50)
                 background_color = (0, 64, 0)
-            return True, 0
-        else:
-            return False, 0
+            get.progress_state('waiting')
 
     def loop_visual(self, sketch):
         sketch.background(0)

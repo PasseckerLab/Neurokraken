@@ -51,6 +51,14 @@ class Main(Sketch):
 
         if self.run_controls.active:
             finished, next_state_name, trial_complete = self.machine.current_state.run()
+            if self.machine.progress_state_onto is not None:
+                # get provided a state to progress to after this iteration
+                if not finished:
+                    finished = True
+                    self.machine.current_state.on_end()
+                    self.machine.current_state.run_at_end_wrapper(finished)
+                next_state_name:str = self.machine.progress_state_onto
+                self.machine.progress_state_onto = None
 
             if finished:
                 if trial_complete:

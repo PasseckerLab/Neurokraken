@@ -26,15 +26,13 @@ class Touch_When_Visible(State):
             self.visible = not self.visible
             self.last_switch = get.time_ms
 
-        return False, 0
-
     def loop_visual(self, sketch):
         sketch.background(0,0,0)    
         if self.visible:        
             sketch.fill(0, 255, 0)
             sketch.rect(200, 200, 400, 300)
 
-task = {'my_first_state': Touch_When_Visible(next_state='my_first_state')}
+task = Touch_When_Visible()
 
 nk.load_task(task)
 

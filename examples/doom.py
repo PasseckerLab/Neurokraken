@@ -9,10 +9,14 @@ serial_out = {'reward': devices.timed_on(pin=40)}
 
 nk = Neurokraken(serial_in, serial_out, display=Display(size=(800, 600)), mode='keyboard')
 
-import vizdoom as vzd # pip install vizdoom --pre
+try:
+   import vizdoom as vzd
+except ModuleNotFoundError:
+   print('! --- To run this example please run `uv pip install vizdoom --pre` (for uv) or `pip install vizdoom --pre` (for conda) to install the vizdoom package --- !')
+   exit()
 from neurokraken.controls import get
-from neurokraken.tools import Millis
-millis_timer = Millis()
+from neurokraken.tools import Timer
+timer = Timer()
 
 import numpy as np
 
@@ -57,12 +61,12 @@ class DOOM(State):
 
     def loop_main(self):
         # slow down the game loop executions to a 60 fps framerate
-        if millis_timer() < 16:
-            return False, 0
-        millis_timer.zero()
+        if timer() < 16:
+            return
+        timer.zero()
         
         if get.game.is_episode_finished():
-            return True, 0
+            get.progress_state('DOOM')
         else:
             state = get.game.get_state()
             get.screen_buf = state.screen_buffer 
@@ -90,8 +94,6 @@ class DOOM(State):
             if points > self.total_rewards:
                self.total_rewards = points
                get.send_out('reward', 70)
-
-        return False, 0
         
     def loop_visual(self, sketch):
         # pass the current screen_buffer to a py5 image and display it
@@ -105,7 +107,7 @@ class DOOM(State):
 #------------------------- TRAINING PROTOCOL BLOCKS AND BLOCK TRIAL STATES -------------------------
 
 task = {
-    'DOOM': DOOM(max_time_s=180, next_state='DOOM'),
+    'DOOM': DOOM(max_time_s=180),
 }
 
 # call the game environment's close function upon neurokraken quit

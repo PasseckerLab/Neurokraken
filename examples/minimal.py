@@ -12,8 +12,8 @@ from neurokraken import get
 
 class My_State(State):
     def loop_main(self):
-        # your experiment code will loop here
-        return False, 0
+        # add your experiment code here where it will run in a loop
+        pass
 
 task = My_State()
 

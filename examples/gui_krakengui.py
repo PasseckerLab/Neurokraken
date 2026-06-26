@@ -37,10 +37,9 @@ class Steer_alternating(State):
         elif not self.target_right and self.position < -90:
             reached = 'left'
         if reached is not None:
-            self.target_right = not self.target_right
+            self.target_right = not self.target_rightää
             get.log['history'].append([get.time_ms, reached])
             get.send_out('reward', get.reward_size)
-        return False, 0
     
     def loop_visual(self, sketch):
         sketch.background(0)

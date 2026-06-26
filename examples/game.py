@@ -11,8 +11,8 @@ nk = Neurokraken(serial_in, serial_out, display=Display(size=(800, 600)), mode='
 from pathlib import Path
 import random
 from neurokraken.controls import get
-from neurokraken.tools import Millis
-millis_timer = Millis()
+from neurokraken.tools import Timer
+timer = Timer()
 
 spawn_points = [[100, 100], [700, 100], [100, 500], [700, 500]]
 
@@ -40,9 +40,9 @@ class Game(State):
 
     def loop_main(self):
         # run game loop calculations at a 60 fps framerate
-        if millis_timer() < 16:
-            return False, 0
-        millis_timer.zero()
+        if timer() < 16:
+            return
+        timer.zero()
 
         # go from range 0-1024 into -1 to +1
         self.delta_x = (get.read_in('LR') / 512) - 1.0
@@ -60,8 +60,6 @@ class Game(State):
             get.send_out('reward', 100)
             spawn_options = [s for s in spawn_points if distance(self.x, self.y, s[0], s[1]) > 250]
             self.reward_pos = random.choice(spawn_options)
-
-        return False, 0
 
     def loop_visual(self, sketch):
         sketch.background(0)

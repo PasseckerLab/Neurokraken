@@ -53,9 +53,7 @@ class Corridor(State):
 
         if self.position >= 660:
             # the end was reached, go on to the next trial
-            return True, 0
-
-        return False, 0
+            get.progress_state('corridor')
 
     def loop_visual(self, sketch):
         sketch.background(0, 0, 40)
@@ -81,9 +79,7 @@ class Corridor(State):
         
 #------------------------- TASK PROTOCOL BLOCKS AND BLOCK TRIAL STATES -------------------------
 
-task  = {
-'corridor': Corridor(max_time_s=1_000_000, next_state='corridor')
-}
+task = {'corridor': Corridor()}
 
 nk.load_task(task)
 

@@ -1,4 +1,4 @@
-# This example is the same as minimal.py but in runner mode and with a UI color control added in launch.py
+# This example is the same as blink.py but in runner mode and with a UI color control added in launch.py
 
 from neurokraken.controls import get
 from neurokraken import State
@@ -17,11 +17,8 @@ class Color(State):
             self.led_status = not self.led_status
             get.send_out('led', self.led_status)
             self.t_last_switch = get.time_ms
-        return False, 0
     
     def loop_visual(self, sketch):
         sketch.background(*get.color)
 
-task = {
-    'waiting': Color(next_state='waiting'),
-}
+task = Color()

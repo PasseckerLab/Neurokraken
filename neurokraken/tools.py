@@ -4,16 +4,19 @@ from pathlib import Path
 import imageio_ffmpeg
 from neurokraken import get
 
-class Millis():
+class Timer():
     """
     A timer class that measures elapsed time in milliseconds
     
     This class provides a simple way to track elapsed time by storing a starting
     timestamp and calculating the difference from the current time when called.
     
+    Calling the timer instance returns the elapsed time in milliseconds.
+    The time can be reset to .zero() or or .set() to a different start point 
+
     Example:
 
-        >>> timer = Millis()
+        >>> timer = Timer()
         >>> while True:
         >>>     if timer() >= 50:
         >>>         # do thing every 50ms, then reset the time
@@ -24,8 +27,12 @@ class Millis():
         """Initialize the timer with current get.time_ms as starting point."""
         self.t_start = get.time_ms
 
-    def __call__(self):
-        """The time since the timer was created or last zeroed"""
+    def __call__(self) -> int:
+        """The time since the timer was created or last zeroed
+        
+        Example:
+            >>> print(f'the timer is currently at {timer()} milliseconds')
+        """
         return get.time_ms - self.t_start
     
     def zero(self):
@@ -38,7 +45,7 @@ class Millis():
         
         Example - counting up to:
 
-            >>> timer = Millis()
+            >>> timer = Timer()
             >>> timer.set(-50)
             >>> while True:
             >>>     if timer() > 0:
@@ -46,7 +53,7 @@ class Millis():
 
         Example - precise timing:
         
-            >>> timer = Millis()
+            >>> timer = Timer()
             >>> while True:
             >>>     if timer() >= 50:
             >>>         # do thing
