@@ -9,7 +9,6 @@ serial_out = {
     'reward_valve':   devices.timed_on(pin=40),
 }
 
-
 display = Display(size=(800,600))
 
 nk = Neurokraken(serial_in=serial_in, serial_out=serial_out, 

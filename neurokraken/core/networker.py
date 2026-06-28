@@ -269,9 +269,9 @@ class Dummy_Networker():
         if self.start_time is None:
             self.start_time = time.time_ns() / 1_000_000.
         if 't_ms' in serial_in.keys():
-            serial_in['t_ms']['value'] = (time.time_ns() / 1_000_000.) - self.start_time
+            serial_in['t_ms']['value'] = int((time.time_ns() / 1_000_000.) - self.start_time)
         if 't_us' in serial_in.keys():
-            serial_in['t_us']['value'] = (time.time_ns() / 1_000.) - self.start_time
+            serial_in['t_us']['value'] = int((time.time_ns() / 1_000.) - self.start_time)
 
         if self.mode == 'keyboard':
             # custom key presses

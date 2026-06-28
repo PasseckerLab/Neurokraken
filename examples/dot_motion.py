@@ -118,7 +118,6 @@ class Reward(State):
     def loop_visual(self, sketch):
         sketch.background(0, 64, 0)
 
-
 task = {
     'random_dots': Random_Dots(max_time_s=20, next_state=['delay', 'reward']),
     'reward':  Reward(max_time_s=0.3, next_state='random_dots', trial_complete=True),
